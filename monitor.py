@@ -26,13 +26,13 @@ def read_input_register(reg, fun_code=4, length=1):
         print(f"Error reading register {reg}: {e}")
         return None
 
-if __name__ == "__main__":
-    print("=== Growatt SPF5000ES Modbus Test ===")
-
-    # System Status (Input Reg 0)
-    status = read_input_register(0)
-    print("Status:", status)
-
-    # Battery SOC (Input Reg 18)
-    battery_soc = read_input_register(18)
-    print("Battery SOC:", battery_soc)
+#if __name__ == "__main__":
+#    print("=== Growatt SPF5000ES Modbus Test ===")
+#
+#    # System Status (Input Reg 0)
+#    status = read_input_register(0)
+#    print("Status:", status)
+#
+#    # Battery SOC (Input Reg 18)
+#    battery_soc = read_input_register(18)
+#    print("Battery SOC:", battery_soc)
