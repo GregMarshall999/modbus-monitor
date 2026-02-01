@@ -48,18 +48,54 @@ Refer to it for register addresses, data types, and scaling.
 
 ## Usage
 
+### Modbus CLI test
+
 ```bash
 python monitor.py
 ```
 
 This reads a few example registers (e.g. system status, battery SOC) and prints them. Adjust `read_input_register()` calls and register addresses in `monitor.py` as needed; use **`inverter modbus.pdf`** for the correct addresses and formats.
 
+### Running the API (FastAPI)
+
+```bash
+uvicorn main:app --reload
+```
+
+- **Local only** (default): open http://127.0.0.1:8000 and http://127.0.0.1:8000/docs on the same machine.
+
+### Accessing the API over LAN
+
+To reach the API from other devices on your network (phone, tablet, another PC):
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+**Raspberry Pi’s LAN IP**:
+
+- Base URL: `http://<PI_IP>:8000`
+- Examples:
+  - `GET http://192.168.1.42:8000/system-status`
+  - `GET http://192.168.1.42:8000/battery-soc`
+  - API docs: `http://192.168.1.42:8000/docs`
+
+**Find the Pi’s IP**:
+
+```bash
+hostname -I
+# or
+ip addr
+```
+
 ## Project Layout
 
 ```
 modbus-monitor/
 ├── README.md           # This file
+├── VENV.md             # Virtual environment setup
 ├── requirements.txt    # Python dependencies
+├── main.py             # FastAPI app (HTTP API)
 ├── monitor.py          # Modbus read script
 ├── inverter modbus.pdf # SPF5000 Modbus protocol
 └── installation/       # Setup and wiring photos
