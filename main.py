@@ -1,12 +1,34 @@
-from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
-app = FastAPI()
+from monitor import read_input_register
+
+# Register addresses (Growatt SPF5000ES - see inverter modbus.pdf)
+REG_SYSTEM_STATUS = 0
+REG_BATTERY_SOC = 18
+
+app = FastAPI(title="Growatt SPF5000ES Modbus API")
+
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"service": "Growatt SPF5000ES Modbus API", "docs": "/docs"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+
+@app.get("/system-status")
+def get_system_status():
+    """Read system status from Modbus input register 0."""
+    result = read_input_register(REG_SYSTEM_STATUS)
+    if result is None:
+        raise HTTPException(status_code=503, detail="Failed to read system status from device")
+    value = result[0] if result else None
+    return {"register": REG_SYSTEM_STATUS, "status": value}
+
+
+@app.get("/battery-soc")
+def get_battery_soc():
+    """Read battery state of charge (SOC) from Modbus input register 18."""
+    result = read_input_register(REG_BATTERY_SOC)
+    if result is None:
+        raise HTTPException(status_code=503, detail="Failed to read battery SOC from device")
+    value = result[0] if result else None
+    return {"register": REG_BATTERY_SOC, "soc": value}
