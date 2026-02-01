@@ -10,6 +10,12 @@ python -m venv .venv
 
 ## 2. Activate the virtual environment
 
+**Linux:**
+
+```bash
+source .venv/bin/activate
+```
+
 **PowerShell:**
 
 ```powershell
