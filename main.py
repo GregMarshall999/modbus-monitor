@@ -4,6 +4,7 @@ from monitor import read_input_register
 
 # Register addresses (Growatt SPF5000ES - see inverter modbus.pdf)
 REG_SYSTEM_STATUS = 0
+REG_PV_VOLTAGE = 1
 REG_BATTERY_SOC = 18
 
 app = FastAPI(title="Growatt SPF5000ES Modbus API")
@@ -23,6 +24,14 @@ def get_system_status():
     value = result[0] if result else None
     return {"register": REG_SYSTEM_STATUS, "status": value}
 
+@app.get("/pv-voltage")
+def get_pv_voltage():
+    """Read PV voltage from Modbus input register 01."""
+    result = read_input_register(REG_PV_VOLTAGE)
+    if result is None:
+        raise HTTPException(status_code=503, detail="Failed to read PV voltage from device")
+    value = result[0] if result else None
+    return {"register": REG_PV_VOLTAGE, "voltage": value / 10}
 
 @app.get("/battery-soc")
 def get_battery_soc():
