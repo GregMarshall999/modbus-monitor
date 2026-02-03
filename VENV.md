@@ -39,7 +39,27 @@ uvicorn main:app --reload
 
 http://127.0.0.1:8000 in browser.
 
-## 4. Deactivate when finished
+## 4. Install test dependencies and run tests
+
+With the venv activated, install dev dependencies (includes pytest and project deps):
+
+```powershell
+pip install -r requirements-dev.txt
+```
+
+Run the test suite (no USB device required; Modbus is mocked):
+
+```powershell
+pytest
+```
+
+Verbose output with coverage:
+
+```powershell
+pytest -v --cov=main --cov-report=term-missing
+```
+
+## 5. Deactivate when finished
 
 ```powershell
 deactivate
@@ -55,5 +75,7 @@ deactivate
 | Activate (PowerShell) | `.venv\Scripts\Activate.ps1` |
 | Activate (cmd) | `.venv\Scripts\activate.bat` |
 | Install dependencies | `pip install -r requirements.txt` |
+| Install deps + test tools | `pip install -r requirements-dev.txt` |
 | Run API | `uvicorn main:app --reload` |
+| Run tests | `pytest` |
 | Deactivate | `deactivate` |

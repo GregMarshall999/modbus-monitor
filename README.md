@@ -92,17 +92,38 @@ hostname -I
 ip addr
 ```
 
+### Testing (no hardware required)
+
+Tests mock the Modbus layer so they run without a USB/serial device (e.g. in CI):
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+With coverage:
+
+```bash
+pytest --cov=main --cov-report=term-missing
+```
+
 ## Project Layout
 
 ```
 modbus-monitor/
-├── README.md           # This file
-├── VENV.md             # Virtual environment setup
-├── requirements.txt    # Python dependencies
-├── main.py             # FastAPI app (HTTP API)
-├── monitor.py          # Modbus read script
-├── inverter modbus.pdf # SPF5000 Modbus protocol
-└── installation/       # Setup and wiring photos
+├── README.md             # This file
+├── CHANGELOG.md          # Version history
+├── VENV.md               # Virtual environment setup
+├── requirements.txt      # Python dependencies
+├── requirements-dev.txt # Test dependencies (pytest, pytest-cov)
+├── pytest.ini            # Pytest config
+├── main.py               # FastAPI app (HTTP API)
+├── monitor.py            # Modbus read script
+├── inverter modbus.pdf   # SPF5000 Modbus protocol
+├── tests/                # API tests (mocked Modbus, no USB)
+│   ├── conftest.py       # Pytest fixtures (TestClient)
+│   └── test_api.py       # Endpoint tests
+└── installation/         # Setup and wiring photos
     ├── rbp.jpg
     ├── mbp.jpg
     ├── gwi.jpg
