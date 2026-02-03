@@ -2,6 +2,10 @@
 
 Read data from a **Growatt SPF5000ES** inverter via Modbus RTU using a Raspberry Pi.
 
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md)
+
 ## Status
 
 **SNAPSHOT** — The project successfully reads data from the requested Modbus registers. It is not yet a full monitoring solution.
@@ -88,17 +92,84 @@ hostname -I
 ip addr
 ```
 
+### Testing (no hardware required)
+
+Tests mock the Modbus layer so they run without a USB/serial device (e.g. in CI):
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+With coverage:
+
+```bash
+pytest --cov=main --cov-report=term-missing
+```
+
+## Running with Docker
+
+### Build the image
+
+From the project root:
+
+```bash
+docker build -t modbus-monitor .
+```
+
+### Run the container (with Modbus USB device)
+
+On a Linux host / Raspberry Pi where the inverter is on `/dev/ttyUSB0`:
+
+```bash
+docker run --rm \
+  --name modbus-monitor \
+  --device=/dev/ttyUSB0:/dev/ttyUSB0 \
+  -p 8000:8000 \
+  modbus-monitor
+```
+
+- The container uses an internal virtual environment at `/app/.venv` to install Python dependencies.
+- API will be available at `http://<HOST_IP>:8000` (e.g. `http://192.168.1.42:8000/docs`).
+
+If your adapter uses another serial device (e.g. `/dev/ttyAMA0`), either:
+
+- Change `DEVICE` in `monitor.py`, or
+- Map it accordingly: `--device=/dev/ttyAMA0:/dev/ttyUSB0` and keep the default `DEVICE`.
+
+### Docker Compose
+
+From the project root:
+
+```bash
+docker compose up -d --build
+```
+
+- Builds the image, exposes port 8000, and passes `/dev/ttyUSB0` into the container.
+- API: `http://<HOST_IP>:8000` (docs at `/docs`).
+- Stop: `docker compose down`.
+
+To use a different serial device, edit `devices` in `docker-compose.yml` (e.g. `/dev/ttyAMA0:/dev/ttyUSB0`).
+
 ## Project Layout
 
 ```
 modbus-monitor/
-├── README.md           # This file
-├── VENV.md             # Virtual environment setup
-├── requirements.txt    # Python dependencies
-├── main.py             # FastAPI app (HTTP API)
-├── monitor.py          # Modbus read script
-├── inverter modbus.pdf # SPF5000 Modbus protocol
-└── installation/       # Setup and wiring photos
+├── README.md             # This file
+├── CHANGELOG.md          # Version history
+├── VENV.md               # Virtual environment setup
+├── Dockerfile            # Docker image (venv + uvicorn)
+├── docker-compose.yml    # Compose: build, port 8000, device /dev/ttyUSB0
+├── requirements.txt      # Python dependencies
+├── requirements-dev.txt # Test dependencies (pytest, pytest-cov)
+├── pytest.ini            # Pytest config
+├── main.py               # FastAPI app (HTTP API)
+├── monitor.py            # Modbus read script
+├── inverter modbus.pdf   # SPF5000 Modbus protocol
+├── tests/                # API tests (mocked Modbus, no USB)
+│   ├── conftest.py       # Pytest fixtures (TestClient)
+│   └── test_api.py       # Endpoint tests
+└── installation/         # Setup and wiring photos
     ├── rbp.jpg
     ├── mbp.jpg
     ├── gwi.jpg
