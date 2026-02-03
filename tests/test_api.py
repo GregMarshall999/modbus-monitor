@@ -2,7 +2,6 @@
 
 All tests mock monitor.read_input_register so no USB/serial device is required.
 """
-import pytest
 from unittest.mock import patch
 
 
