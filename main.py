@@ -6,6 +6,7 @@ from monitor import read_input_register, instruments
 REG_SYSTEM_STATUS = 0
 REG_PV_VOLTAGE = 1
 REG_PPV1_H = 3
+REG_OUTPUT_POWER = 9
 REG_BATTERY_SOC = 18
 
 NUM_DEVICES = len(instruments)
@@ -63,6 +64,19 @@ def get_pv1_power(device_id: int = Path(..., ge=0)):
 
     return {"device": device_id, "register": REG_PPV1_H, "power": power_watts}
 
+@app.get("/device/{device_id}/output-power")
+def get_output_power(device_id: int = Path(..., ge=0)):
+    """Read output power from Modbus input register 9."""
+    validate_device(device_id)
+    result = read_input_register(REG_OUTPUT_POWER, instrument_index=device_id, length=2)
+    if result is None or len(result) < 2:
+        raise HTTPException(status_code=503, detail="Failed to read output power from device")
+
+    high, low = result
+    raw_value = (high << 16) | low
+    power_watts = raw_value / 10.0
+
+    return {"device": device_id, "register": REG_OUTPUT_POWER, "power": power_watts}
 
 @app.get("/device/{device_id}/battery-soc")
 def get_battery_soc(device_id: int = Path(..., ge=0)):
