@@ -107,39 +107,6 @@ With coverage:
 pytest --cov=main --cov-report=term-missing
 ```
 
-**CI/CD:** GitHub Actions runs tests and builds the Docker image on every push and pull request. On **push** to `main`/`master`, it deploys to the Raspberry Pi via SSH (see [.github/workflows/ci.yml](.github/workflows/ci.yml)).
-
-## Deploy to Raspberry Pi (CI/CD)
-
-Deployment runs automatically when you push to `main` (or `master`). The workflow SSHs into the Pi, updates the repo at `~/projects/modbus-monitor`, and runs `docker compose up -d --build`.
-
-### One-time setup on the Pi
-
-1. **Install Docker and Docker Compose** (if not already installed).
-2. **Clone the repo** into the expected path:
-   ```bash
-   mkdir -p ~/projects
-   git clone https://github.com/YOUR_USERNAME/modbus-monitor.git ~/projects/modbus-monitor
-   cd ~/projects/modbus-monitor
-   ```
-3. **SSH key for GitHub Actions:** On your Pi, ensure the user that runs the workflow can pull and run Docker. Create a **dedicated SSH key** for deploys (or reuse one that has access to the Pi):
-   - On your **local machine** (or Pi): `ssh-keygen -t ed25519 -C "github-deploy" -f deploy_key -N ""`
-   - Add `deploy_key.pub` to the Pi’s `~/.ssh/authorized_keys` for the deploy user.
-   - Use the **private** key contents as the GitHub secret `DEPLOY_SSH_KEY`.
-
-### GitHub repository secrets
-
-In the repo: **Settings → Secrets and variables → Actions**, add:
-
-| Secret             | Description                                      |
-|--------------------|--------------------------------------------------|
-| `DEPLOY_HOST`      | Raspberry Pi IP or hostname (e.g. `192.168.1.42` or `raspberrypi.local`) |
-| `DEPLOY_USER`      | SSH user on the Pi (e.g. `pi`)                  |
-| `DEPLOY_SSH_KEY`   | Full contents of the **private** deploy key     |
-| `DEPLOY_SSH_PORT`  | Optional; SSH port if not 22                    |
-
-After the first push to `main`, the workflow will SSH to the Pi, update `~/projects/modbus-monitor`, and start the app with Docker Compose.
-
 ## Running with Docker
 
 ### Build the image
