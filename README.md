@@ -107,6 +107,36 @@ With coverage:
 pytest --cov=main --cov-report=term-missing
 ```
 
+## Running with Docker
+
+### Build the image
+
+From the project root:
+
+```bash
+docker build -t modbus-monitor .
+```
+
+### Run the container (with Modbus USB device)
+
+On a Linux host / Raspberry Pi where the inverter is on `/dev/ttyUSB0`:
+
+```bash
+docker run --rm \
+  --name modbus-monitor \
+  --device=/dev/ttyUSB0:/dev/ttyUSB0 \
+  -p 8000:8000 \
+  modbus-monitor
+```
+
+- The container uses an internal virtual environment at `/app/.venv` to install Python dependencies.
+- API will be available at `http://<HOST_IP>:8000` (e.g. `http://192.168.1.42:8000/docs`).
+
+If your adapter uses another serial device (e.g. `/dev/ttyAMA0`), either:
+
+- Change `DEVICE` in `monitor.py`, or
+- Map it accordingly: `--device=/dev/ttyAMA0:/dev/ttyUSB0` and keep the default `DEVICE`.
+
 ## Project Layout
 
 ```
