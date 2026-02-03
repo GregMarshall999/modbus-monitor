@@ -137,6 +137,20 @@ If your adapter uses another serial device (e.g. `/dev/ttyAMA0`), either:
 - Change `DEVICE` in `monitor.py`, or
 - Map it accordingly: `--device=/dev/ttyAMA0:/dev/ttyUSB0` and keep the default `DEVICE`.
 
+### Docker Compose
+
+From the project root:
+
+```bash
+docker compose up -d --build
+```
+
+- Builds the image, exposes port 8000, and passes `/dev/ttyUSB0` into the container.
+- API: `http://<HOST_IP>:8000` (docs at `/docs`).
+- Stop: `docker compose down`.
+
+To use a different serial device, edit `devices` in `docker-compose.yml` (e.g. `/dev/ttyAMA0:/dev/ttyUSB0`).
+
 ## Project Layout
 
 ```
@@ -144,6 +158,8 @@ modbus-monitor/
 ├── README.md             # This file
 ├── CHANGELOG.md          # Version history
 ├── VENV.md               # Virtual environment setup
+├── Dockerfile            # Docker image (venv + uvicorn)
+├── docker-compose.yml    # Compose: build, port 8000, device /dev/ttyUSB0
 ├── requirements.txt      # Python dependencies
 ├── requirements-dev.txt # Test dependencies (pytest, pytest-cov)
 ├── pytest.ini            # Pytest config
