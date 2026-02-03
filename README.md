@@ -2,6 +2,10 @@
 
 Read data from a **Growatt SPF5000ES** inverter via Modbus RTU using a Raspberry Pi.
 
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md)
+
 ## Status
 
 **SNAPSHOT** — The project successfully reads data from the requested Modbus registers. It is not yet a full monitoring solution.
