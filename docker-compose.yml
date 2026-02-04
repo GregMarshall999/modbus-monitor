@@ -7,4 +7,5 @@ services:
       - "8000:8000"
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
     restart: unless-stopped
