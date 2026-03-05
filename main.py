@@ -27,7 +27,6 @@ def validate_device(device_id: int = Path(..., ge=0, description="Device index (
 def read_root():
     return {"service": "Growatt SPF5000ES Modbus API", "docs": "/docs", "devices": NUM_DEVICES}
 
-
 @app.get("/device/{device_id}/system-status")
 def get_system_status(device_id: int = Path(..., ge=0)):
     """Read system status from Modbus input register 0."""
@@ -38,7 +37,6 @@ def get_system_status(device_id: int = Path(..., ge=0)):
     value = result[0] if result else None
     return {"device": device_id, "register": REG_SYSTEM_STATUS, "status": value}
 
-
 @app.get("/device/{device_id}/pv-voltage")
 def get_pv_voltage(device_id: int = Path(..., ge=0)):
     """Read PV voltage from Modbus input register 1."""
@@ -48,7 +46,6 @@ def get_pv_voltage(device_id: int = Path(..., ge=0)):
         raise HTTPException(status_code=503, detail="Failed to read PV voltage from device")
     value = result[0] if result else None
     return {"device": device_id, "register": REG_PV_VOLTAGE, "voltage": value / 10}
-
 
 @app.get("/device/{device_id}/pv1-power")
 def get_pv1_power(device_id: int = Path(..., ge=0)):
@@ -87,3 +84,38 @@ def get_battery_soc(device_id: int = Path(..., ge=0)):
         raise HTTPException(status_code=503, detail="Failed to read battery SOC from device")
     value = result[0] if result else None
     return {"device": device_id, "register": REG_BATTERY_SOC, "soc": value}
+
+@app.get("/device/{device_id}/growatt-data")
+def get_growatt_data(device_id: int = Path(..., ge=0)):
+    """Read all Growatt data from the device."""
+    validate_device(device_id)
+    system_status = read_input_register(REG_SYSTEM_STATUS, instrument_index=device_id)
+    pv_voltage = read_input_register(REG_PV_VOLTAGE, instrument_index=device_id)
+    pv1_power = read_input_register(REG_PPV1_H, instrument_index=device_id, length=2)
+    output_power = read_input_register(REG_OUTPUT_POWER, instrument_index=device_id, length=2)
+    battery_soc = read_input_register(REG_BATTERY_SOC, instrument_index=device_id)
+
+    if system_status is None or pv_voltage is None or pv1_power is None or output_power is None or battery_soc is None:
+        raise HTTPException(status_code=503, detail="Failed to read Growatt data from device")
+    
+    ssv = system_status[0] if system_status else None
+    pvv = pv_voltage[0] if pv_voltage else None
+
+    high, low = pv1_power
+    raw_value = (high << 16) | low
+    ppw = raw_value / 10.0
+
+    high, low = output_power
+    raw_value = (high << 16) | low
+    opw = raw_value / 10.0
+
+    bss = battery_soc[0] if battery_soc else None
+
+    return {
+        "device": device_id,
+        "system_status": ssv,
+        "pv_voltage": pvv,
+        "pv1_power": ppw,
+        "output_power": opw,
+        "battery_soc": bss
+    }
