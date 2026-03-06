@@ -99,7 +99,7 @@ def get_growatt_data(device_id: int = Path(..., ge=0)):
         raise HTTPException(status_code=503, detail="Failed to read Growatt data from device")
     
     ssv = system_status[0] if system_status else None
-    pvv = pv_voltage[0] if pv_voltage else None
+    pvv = pv_voltage[0] / 10 if pv_voltage else None
 
     high, low = pv1_power
     raw_value = (high << 16) | low
